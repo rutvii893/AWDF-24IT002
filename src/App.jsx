@@ -3,6 +3,8 @@ import Navbar from './components/Navbar';
 import Home from './components/Home';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
+import Login from './components/Login';
+import Register from './components/Register';
 import Notfound from './pages/Notfound';
 import Footer from './components/Footer';
 
@@ -15,6 +17,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="*" element={<Notfound />} />
         </Routes>
 

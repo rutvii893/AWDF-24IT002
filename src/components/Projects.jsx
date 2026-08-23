@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Spinner from './Spinner';
 import ErrorMessage from './ErrorMessage';
 import { getTasks, createTask, updateTask, deleteTask } from '../api';
+import { Link } from 'react-router-dom';
 
 function Projects() {
   const [tasks, setTasks] = useState([]);
@@ -122,7 +123,14 @@ function Projects() {
       />
 
       {loading && <Spinner />}
-      {error && <ErrorMessage message={error} onRetry={fetchTasks} />}
+      {error === 'Unauthorized' ? (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <p style={{ color: 'red' }}>You must be logged in to view and manage tasks.</p>
+          <Link to="/login" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>Go to Login</Link>
+        </div>
+      ) : error ? (
+        <ErrorMessage message={error} onRetry={fetchTasks} />
+      ) : null}
 
       {!loading && !error && (
         <div className="project-grid">
