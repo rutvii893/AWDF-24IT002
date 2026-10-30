@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Spinner from './Spinner';
 import ErrorMessage from './ErrorMessage';
-import { getTasks, createTask, updateTask, deleteTask } from '../api';
+import { getTasks, createTask, updateTask, deleteTask, generateTaskDescription } from '../api';
 import { Link } from 'react-router-dom';
 
 function Projects() {
@@ -14,6 +14,11 @@ function Projects() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
+
+  // AI Generation state
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiMessage, setAiMessage] = useState(null);
+  const [aiError, setAiError] = useState(null);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -33,6 +38,28 @@ function Projects() {
     fetchTasks();
   }, []);
 
+  const handleGenerateDescription = async () => {
+    if (!title.trim()) {
+      setAiError('Please enter a task title first.');
+      setAiMessage(null);
+      return;
+    }
+
+    setIsGenerating(true);
+    setAiError(null);
+    setAiMessage(null);
+
+    try {
+      const generated = await generateTaskDescription(title.trim());
+      setDescription(generated);
+      setAiMessage('AI task description generated successfully! You can review and edit it below.');
+    } catch (err) {
+      setAiError(err.message || 'AI generation failed. Please enter description manually.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleAddTask = async (e) => {
     e.preventDefault();
     if (!title.trim()) return;
@@ -43,6 +70,8 @@ function Projects() {
       setTitle('');
       setDescription('');
       setPriority('medium');
+      setAiMessage(null);
+      setAiError(null);
       alert('Task added successfully!');
     } catch (err) {
       alert('Failed to add task');
@@ -90,19 +119,110 @@ function Projects() {
       }}>
         <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', color: '#f1f5f9' }}>Add New Task</h3>
         <form onSubmit={handleAddTask} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <input 
-            type="text" 
-            placeholder="Task title..." 
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-          <input 
-            type="text" 
-            placeholder="Description (optional)..." 
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <input 
+              type="text" 
+              placeholder="Task title (e.g. Complete database integration)..." 
+              value={title}
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (aiError) setAiError(null);
+              }}
+              required
+              style={{ flex: 1, minWidth: '240px' }}
+            />
+            <button
+              type="button"
+              onClick={handleGenerateDescription}
+              disabled={isGenerating}
+              className="btn"
+              style={{
+                background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                color: '#ffffff',
+                border: 'none',
+                cursor: isGenerating ? 'not-allowed' : 'pointer',
+                opacity: isGenerating ? 0.7 : 1,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                whiteSpace: 'nowrap',
+                fontWeight: 600,
+                padding: '10px 16px',
+                borderRadius: 'var(--radius-sm, 6px)'
+              }}
+            >
+              {isGenerating ? (
+                <>
+                  <span style={{
+                    display: 'inline-block',
+                    width: '14px',
+                    height: '14px',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderTopColor: '#ffffff',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite'
+                  }}></span>
+                  Generating...
+                </>
+              ) : (
+                '✨ Generate Description'
+              )}
+            </button>
+          </div>
+
+          {aiMessage && (
+            <div style={{
+              padding: '10px 14px',
+              background: 'rgba(16, 185, 129, 0.1)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              borderRadius: 'var(--radius-sm, 6px)',
+              color: '#34d399',
+              fontSize: '0.9rem'
+            }}>
+              ✓ {aiMessage}
+            </div>
+          )}
+
+          {aiError && (
+            <div style={{
+              padding: '10px 14px',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 'var(--radius-sm, 6px)',
+              color: '#f87171',
+              fontSize: '0.9rem'
+            }}>
+              ⚠️ {aiError}
+            </div>
+          )}
+
+          <div>
+            <textarea 
+              placeholder="Description (optional or generate using AI)..." 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: 'var(--radius-sm, 6px)',
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid var(--border-subtle, rgba(255, 255, 255, 0.1))',
+                color: '#f1f5f9',
+                fontSize: '0.95rem',
+                fontFamily: 'inherit',
+                resize: 'vertical'
+              }}
+            />
+            <p style={{
+              fontSize: '0.8rem',
+              color: '#94a3b8',
+              marginTop: '4px',
+              fontStyle: 'italic'
+            }}>
+              💡 Disclaimer: AI-generated suggestion: Please review and edit this content before creating your task.
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
             <select 
               value={priority}

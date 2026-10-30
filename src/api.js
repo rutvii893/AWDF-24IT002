@@ -72,3 +72,27 @@ export const deleteTask = async (id) => {
     throw error;
   }
 };
+
+export const generateTaskDescription = async (title) => {
+  try {
+    const response = await fetch(`${BASE_URL}/api/ai/generate-description`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to generate task description');
+    }
+
+    return data.description;
+  } catch (error) {
+    console.error('Error generating AI description:', error);
+    throw error;
+  }
+};
+
