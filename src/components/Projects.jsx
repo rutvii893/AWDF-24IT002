@@ -81,52 +81,71 @@ function Projects() {
         <h2>My Tasks</h2>
       </div>
 
-      <div style={{ marginBottom: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-        <h3>Add New Task</h3>
-        <form onSubmit={handleAddTask} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+      <div style={{ 
+        marginBottom: '32px', 
+        padding: '24px', 
+        background: 'var(--bg-glass)', 
+        border: '1px solid var(--border-subtle)', 
+        borderRadius: 'var(--radius-md)' 
+      }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '1.2rem', color: '#f1f5f9' }}>Add New Task</h3>
+        <form onSubmit={handleAddTask} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <input 
             type="text" 
-            placeholder="Task title" 
+            placeholder="Task title..." 
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
             required
           />
           <input 
             type="text" 
-            placeholder="Description (optional)" 
+            placeholder="Description (optional)..." 
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
-          <select 
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            style={{ padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
-          >
-            <option value="low">Low Priority</option>
-            <option value="medium">Medium Priority</option>
-            <option value="high">High Priority</option>
-          </select>
-          <button type="submit" style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-            Add Task
-          </button>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <select 
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              style={{ flex: 1, minWidth: '160px' }}
+            >
+              <option value="low">🟢 Low Priority</option>
+              <option value="medium">🟡 Medium Priority</option>
+              <option value="high">🔴 High Priority</option>
+            </select>
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              style={{ minWidth: '140px' }}
+            >
+              + Add Task
+            </button>
+          </div>
         </form>
       </div>
 
-      <input 
-        type="text" 
-        placeholder="Search tasks by title..." 
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ width: '100%', padding: '10px', marginBottom: '30px', borderRadius: '4px', border: '1px solid #ccc' }}
-      />
+      <div style={{ marginBottom: '28px', position: 'relative' }}>
+        <input 
+          type="text" 
+          placeholder="🔍 Search tasks by title..." 
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
 
       {loading && <Spinner />}
       {error === 'Unauthorized' ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <p style={{ color: 'red' }}>You must be logged in to view and manage tasks.</p>
-          <Link to="/login" style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', textDecoration: 'none', borderRadius: '4px' }}>Go to Login</Link>
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '40px 20px', 
+          background: 'rgba(239, 68, 68, 0.05)', 
+          border: '1px solid rgba(239, 68, 68, 0.2)', 
+          borderRadius: 'var(--radius-md)' 
+        }}>
+          <p style={{ color: '#f87171', fontSize: '1.1rem', marginBottom: '16px', fontWeight: 500 }}>
+            You must be logged in to view and manage tasks.
+          </p>
+          <Link to="/login" className="btn btn-primary">Go to Login</Link>
         </div>
       ) : error ? (
         <ErrorMessage message={error} onRetry={fetchTasks} />
@@ -136,22 +155,61 @@ function Projects() {
         <div className="project-grid">
           {filteredTasks.map((task) => (
             <article className="project-card" key={task._id}>
-              <h3 style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>{task.title}</h3>
-              <p>{task.description || 'No description provided.'}</p>
+              <h3 style={{ 
+                textDecoration: task.completed ? 'line-through' : 'none',
+                opacity: task.completed ? 0.6 : 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '8px'
+              }}>
+                <span>{task.title}</span>
+                {task.completed && <span style={{ fontSize: '0.8rem', color: 'var(--success)' }}>✓</span>}
+              </h3>
+              <p style={{ opacity: task.completed ? 0.65 : 0.9 }}>
+                {task.description || 'No description provided.'}
+              </p>
               <div className="project-tags">
-                <span>Priority: {task.priority}</span>
-                <span>Status: {task.completed ? 'Completed' : 'Pending'}</span>
+                <span style={{
+                  color: task.priority === 'high' ? '#f87171' : task.priority === 'low' ? '#34d399' : '#fbbf24',
+                  borderColor: task.priority === 'high' ? 'rgba(239, 68, 68, 0.3)' : task.priority === 'low' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)',
+                  background: task.priority === 'high' ? 'rgba(239, 68, 68, 0.1)' : task.priority === 'low' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)'
+                }}>
+                  Priority: {task.priority.toUpperCase()}
+                </span>
+                <span style={{
+                  color: task.completed ? '#34d399' : '#94a3b8',
+                  borderColor: task.completed ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-subtle)',
+                  background: task.completed ? 'rgba(16, 185, 129, 0.1)' : 'transparent'
+                }}>
+                  {task.completed ? 'Completed' : 'Pending'}
+                </span>
               </div>
-              <div style={{ marginTop: '15px', display: 'flex', gap: '10px' }}>
+              <div style={{ marginTop: 'auto', paddingTop: '16px', display: 'flex', gap: '10px' }}>
                 <button 
                   onClick={() => handleToggleComplete(task)}
-                  style={{ padding: '6px 12px', backgroundColor: task.completed ? '#28a745' : '#ffc107', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', flex: 1 }}
+                  className="btn"
+                  style={{ 
+                    flex: 1,
+                    padding: '8px 12px', 
+                    fontSize: '0.85rem',
+                    background: task.completed ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                    color: task.completed ? '#34d399' : '#fbbf24',
+                    border: `1px solid ${task.completed ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`
+                  }}
                 >
                   {task.completed ? 'Mark Pending' : 'Mark Complete'}
                 </button>
                 <button 
                   onClick={() => handleDeleteTask(task._id)}
-                  style={{ padding: '6px 12px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                  className="btn"
+                  style={{ 
+                    padding: '8px 14px', 
+                    fontSize: '0.85rem',
+                    background: 'rgba(239, 68, 68, 0.15)', 
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)'
+                  }}
                 >
                   Delete
                 </button>
@@ -161,7 +219,9 @@ function Projects() {
         </div>
       )}
       {!loading && !error && filteredTasks.length === 0 && (
-        <p>No tasks found.</p>
+        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+          <p>No tasks found.</p>
+        </div>
       )}
     </section>
   );

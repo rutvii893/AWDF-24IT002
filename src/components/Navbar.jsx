@@ -27,11 +27,29 @@ function Navbar() {
           </NavLink>
         ))}
         {token ? (
-          <button onClick={handleLogout} style={{ background: 'transparent', border: 'none', color: 'inherit', cursor: 'pointer', padding: '0 10px', fontSize: '1rem', textDecoration: 'underline' }}>
+          <button 
+            onClick={handleLogout} 
+            className="btn"
+            style={{ 
+              background: 'rgba(239, 68, 68, 0.15)', 
+              color: '#f87171', 
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              padding: '6px 14px', 
+              fontSize: '0.9rem',
+              borderRadius: '8px'
+            }}
+          >
             Logout
           </button>
         ) : (
-          <NavLink to="/login">Login</NavLink>
+          <NavLink to="/login" style={{
+            background: 'var(--accent-gradient)',
+            color: '#fff',
+            fontWeight: 600,
+            borderRadius: '8px'
+          }}>
+            Login
+          </NavLink>
         )}
       </div>
     </nav>
